@@ -2,7 +2,7 @@ package ioio.examples.hello;
 
 /**
  * ***********************************************************************
- * Chord keyboard test ver 150914A
+ * Chord keyboard test ver 150914B
  * ************************************************************************
  */
 
@@ -63,6 +63,7 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
     private boolean isRingFingerPressed = false;
     private boolean isPinkyPressed = false;
     private byte fingerCode;
+    private String nextWord = "";
 
      /* ****************************************************************
      * Thumb  Index    Middle     Ring    Pinkie
@@ -70,8 +71,8 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
      * ****************************************************************
      * ASCII                            Binary Finger Code     Hex Finger Code
      * 08 BACK SPACE                        00000                   1F
-     * 0A LINE FEED                         00000                   --
-     * 21 EXCLAMATION                       00000                   1D
+     * 0A LINE FEED                         00000                   1D  //Starts a new word
+     * 21 EXCLAMATION                       00000                   --
      * 2E PERIOD                            11100                   1C
      * 3F QUESTION MARK                     11011                   1B
      * 20 SPACE                             11111                   1E
@@ -148,6 +149,7 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
             SystemClock.sleep(1000);
             led.write(true);
             SystemClock.sleep(1000);
+            fingerCode = 0;
             if (!thumb.read())
             {
                 fingerCode = (byte) (fingerCode | 0x10);
@@ -168,104 +170,108 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
             {
                 fingerCode = (byte) (fingerCode | 0x1);
             }
-            log(Integer.toHexString(fingerCode));
+//            nextWord = nextWord + " " + fingerCode;
+//            log(nextWord + "");
+//            //log(Integer.toHexString(fingerCode));
             switch (fingerCode)
             {
                 case 1:
-                    log("A");
+                    nextWord = nextWord + "A";
+                    log(nextWord);
                     break;
                 case 2:
-                    log("B");
+                    nextWord = nextWord + "B";
+                    log(nextWord);
                     break;
                 case 3:
-                    log("C");
+                    nextWord = nextWord + "C";
+                    log(nextWord);
                     break;
                 case 4:
-                    log("D");
+                    log("D");//04
                     break;
                 case 5:
-                    log("E");
+                    log("E");//05
                     break;
                 case 6:
-                    log("F");
+                    log("F");//06
                     break;
                 case 7:
-                    log("G");
+                    log("G");//07
                     break;
                 case 8:
-                    log("H");
+                    log("H");//08
                     break;
                 case 9:
-                    log("I");
+                    log("I");//09
+                    break;
+                case 0X0A:
+                    log("J");//0A
+                    break;
+                case 0X0B:
+                    log("K");//0B
+                    break;
+                case 0X0C:
+                    log("L");//0C
+                    break;
+                case 0X0D:
+                    log("M");//0D
+                    break;
+                case 0X0E:
+                    log("N");//0E
+                    break;
+                case 0X0F:
+                    log("O");//0F
                     break;
                 case 0X10:
-                    log("J");
+                    log("P");//10
                     break;
                 case 0X11:
-                    log("K");
+                    log("Q");//11
                     break;
                 case 0X12:
-                    log("L");
+                    log("R");//12
                     break;
                 case 0X13:
-                    log("M");
+                    log("S");//13
                     break;
                 case 0X14:
-                    log("N");
+                    log("T");//14
                     break;
                 case 0X15:
-                    log("O");
+                    log("U");//15
                     break;
                 case 0X16:
-                    log("P");
+                    log("V");//16
                     break;
                 case 0X17:
-                    log("Q");
+                    log("W");//17
                     break;
                 case 0X18:
-                    log("R");
+                    log("X");//18
                     break;
                 case 0X19:
-                    log("S");
+                    log("Y");//19
                     break;
-                case 0X20:
-                    log("T");
+                case 0X1A:
+                    log("Z");//1A
                     break;
-                case 0X21:
-                    log("U");
+                case 0X1B:
+                    log("?");//1B
                     break;
-                case 0X22:
-                    log("V");
+                case 0X1C:
+                    log(".");//1C
                     break;
-                case 0X23:
-                    log("W");
+                case 0X1D://1D...new line
+                    log("\n");
                     break;
-                case 0X24:
-                    log("X");
+                case 0X1E://1E...SPACE
+                    nextWord = nextWord + " ";
+                    log(nextWord);
                     break;
-                case 0X25:
-                    log("Y");
-                    break;
-                case 0X26:
-                    log("Z");
-                    break;
-                case 0X27:
-                    log("?");
-                    break;
-                case 0X28:
-                    log(".");
-                    break;
-                case 0X29:
-                    log("!");
-                    break;
-                case 0X30:
-                    log("B");
-                    break;
-                case 0X31:
-                    log("SPEAK");
-                    break;
-                case 0X32:
-                    log("SPACE");
+                case 0X1F://1F...back space
+                    nextWord  = nextWord.substring(0, nextWord.length() - 1);
+                    log(nextWord);
                     break;
             }
         }
