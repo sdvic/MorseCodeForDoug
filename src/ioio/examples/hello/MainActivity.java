@@ -2,7 +2,7 @@ package ioio.examples.hello;
 
 /**
  * ***********************************************************************
- * Chord keyboard test ver 150915A
+ * Chord keyboard test ver 150915B
  * ************************************************************************
  */
 
@@ -11,7 +11,6 @@ import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -21,10 +20,8 @@ import ioio.lib.util.android.IOIOActivity;
 
 public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitListener
 {
-    private ToggleButton button;
     private TextView mText;
     private ScrollView mScroller;
-    private TextToSpeech mTts;
     private DigitalOutput led;//The IOIO board LED
     private DigitalInput thumb;
     private DigitalInput indexFinger;
@@ -84,9 +81,7 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        button = (ToggleButton) findViewById(R.id.button);
         mText = (TextView) findViewById(R.id.logText);
-        mScroller = (ScrollView) findViewById(R.id.scroller);
     }
 
     @Override
@@ -279,9 +274,8 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
         {
             public void run()
             {
+                mText.setText(" ");
                 mText.append("\r" + msg);
-                //mText.append("\n");
-                //mScroller.smoothScrollTo(0, mText.getBottom());
             }
         });
     }
