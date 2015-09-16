@@ -2,20 +2,16 @@ package ioio.examples.hello;
 
 /**
  * ***********************************************************************
- * Chord keyboard test ver 150914B
+ * Chord keyboard test ver 150915A
  * ************************************************************************
  */
 
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -23,29 +19,12 @@ import ioio.lib.util.BaseIOIOLooper;
 import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.android.IOIOActivity;
 
-import java.util.Locale;
-
-
 public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitListener
 {
-    private Accelerometer accelerometer;
-    private int i = 0;
-    private int j = 0;
     private ToggleButton button;
     private TextView mText;
     private ScrollView mScroller;
     private TextToSpeech mTts;
-    private SensorManager sensorManager;
-    private Sensor sensorAccelerometer;
-    private Sensor sensorMagneticField;
-    private float[] valuesAccelerometer;
-    private float[] valuesMagneticField;
-    private float[] matrixR;
-    private float[] matrixI;
-    private float[] matrixValues;
-    private double azimuth;
-    private double pitch;
-    private double roll;
     private DigitalOutput led;//The IOIO board LED
     private DigitalInput thumb;
     private DigitalInput indexFinger;
@@ -57,51 +36,46 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
     public static final int MIDDLE_PIN = 21;
     public static final int RING_PIN = 22;
     public static final int PINKIE_PIN = 23;
-    private boolean isThumbPressed = false;
-    private boolean isIndexFingerPressed = false;
-    private boolean isMiddleFingerPressed = false;
-    private boolean isRingFingerPressed = false;
-    private boolean isPinkyPressed = false;
     private byte fingerCode;
     private String nextWord = "";
 
      /* ****************************************************************
-     * Thumb  Index    Middle     Ring    Pinkie
+     * Thumb  Index    Middle     Ring    Pinkie  Keyboard Layout
      * 16      8         4         2        1
      * ****************************************************************
      * ASCII                            Binary Finger Code     Hex Finger Code
-     * 08 BACK SPACE                        00000                   1F
-     * 0A LINE FEED                         00000                   1D  //Starts a new word
-     * 21 EXCLAMATION                       00000                   --
+     * 08 BACK SPACE                        11111                   1F  //Erase previous character
+     * 0A LINE FEED                         11101                   1D  //Starts a new word on a new line
+     * 21 EXCLAMATION                       -----                   --
      * 2E PERIOD                            11100                   1C
      * 3F QUESTION MARK                     11011                   1B
      * 20 SPACE                             11111                   1E
      * 41 A                                 00001                   01
      * 42 B                                 00010                   02
      * 43 C                                 00011                   03
-     * 44 D                                 00001                   04
-     * 45 E                                 00001                   05
-     * 46 F                                 00001                   06
-     * 47 G                                 00001                   07
-     * 48 H                                 00001                   08
-     * 49 I                                 00001                   09
-     * 4A J                                 00001                   0A
-     * 4B K                                 00001                   0B
-     * 4C L                                 00001                   0C
-     * 4D M                                 00001                   0D
-     * 4E N                                 00001                   0E
-     * 4F O                                 00001                   0F
-     * 50 P                                 00001                   10
-     * 51 Q                                 00001                   11
-     * 52 R                                 00001                   12
-     * 53 S                                 00001                   13
-     * 54 T                                 00001                   14
-     * 55 U                                 00001                   15
-     * 56 V                                 00001                   16
-     * 57 W                                 00001                   17
-     * 58 X                                 00001                   18
-     * 59 Y                                 00001                   19
-     * 5A Z                                 00001                   1A
+     * 44 D                                 00100                   04
+     * 45 E                                 00101                   05
+     * 46 F                                 00110                   06
+     * 47 G                                 00111                   07
+     * 48 H                                 01000                   08
+     * 49 I                                 01001                   09
+     * 4A J                                 01010                   0A
+     * 4B K                                 01011                   0B
+     * 4C L                                 01100                   0C
+     * 4D M                                 01101                   0D
+     * 4E N                                 01110                   0E
+     * 4F O                                 01111                   0F
+     * 50 P                                 10000                   10
+     * 51 Q                                 10001                   11
+     * 52 R                                 10010                   12
+     * 53 S                                 10011                   13
+     * 54 T                                 10100                   14
+     * 55 U                                 10101                   15
+     * 56 V                                 10110                   16
+     * 57 W                                 10111                   17
+     * 58 X                                 11000                   18
+     * 59 Y                                 11001                   19
+     * 5A Z                                 11010                   1A
      * **********************************************************************
      */
 
@@ -113,14 +87,6 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
         button = (ToggleButton) findViewById(R.id.button);
         mText = (TextView) findViewById(R.id.logText);
         mScroller = (ScrollView) findViewById(R.id.scroller);
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        valuesAccelerometer = new float[3];
-        valuesMagneticField = new float[3];
-        matrixR = new float[9];
-        matrixI = new float[9];
-        matrixValues = new float[3];
     }
 
     @Override
@@ -170,9 +136,7 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
             {
                 fingerCode = (byte) (fingerCode | 0x1);
             }
-//            nextWord = nextWord + " " + fingerCode;
-//            log(nextWord + "");
-//            //log(Integer.toHexString(fingerCode));
+
             switch (fingerCode)
             {
                 case 1:
@@ -188,82 +152,108 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
                     log(nextWord);
                     break;
                 case 4:
-                    log("D");//04
+                    nextWord = nextWord + "D";
+                    log(nextWord);
                     break;
                 case 5:
-                    log("E");//05
+                    nextWord = nextWord + "E";
+                    log(nextWord);
                     break;
                 case 6:
-                    log("F");//06
+                    nextWord = nextWord + "F";
+                    log(nextWord);
                     break;
                 case 7:
-                    log("G");//07
+                    nextWord = nextWord + "G";
+                    log(nextWord);
                     break;
                 case 8:
-                    log("H");//08
+                    nextWord = nextWord + "H";
+                    log(nextWord);
                     break;
                 case 9:
-                    log("I");//09
+                    nextWord = nextWord + "I";
+                    log(nextWord);
                     break;
                 case 0X0A:
-                    log("J");//0A
+                    nextWord = nextWord + "J";
+                    log(nextWord);
                     break;
                 case 0X0B:
-                    log("K");//0B
+                    nextWord = nextWord + "K";
+                    log(nextWord);
                     break;
                 case 0X0C:
-                    log("L");//0C
+                    nextWord = nextWord + "L";
+                    log(nextWord);
                     break;
                 case 0X0D:
-                    log("M");//0D
+                    nextWord = nextWord + "M";
+                    log(nextWord);
                     break;
                 case 0X0E:
-                    log("N");//0E
+                    nextWord = nextWord + "N";
+                    log(nextWord);
                     break;
                 case 0X0F:
-                    log("O");//0F
+                    nextWord = nextWord + "O";
+                    log(nextWord);
                     break;
                 case 0X10:
-                    log("P");//10
+                    nextWord = nextWord + "P";
+                    log(nextWord);
                     break;
                 case 0X11:
-                    log("Q");//11
+                    nextWord = nextWord + "Q";
+                    log(nextWord);
                     break;
                 case 0X12:
-                    log("R");//12
+                    nextWord = nextWord + "R";
+                    log(nextWord);
                     break;
                 case 0X13:
-                    log("S");//13
+                    nextWord = nextWord + "S";
+                    log(nextWord);
                     break;
                 case 0X14:
-                    log("T");//14
+                    nextWord = nextWord + "T";
+                    log(nextWord);
                     break;
                 case 0X15:
-                    log("U");//15
+                    nextWord = nextWord + "U";
+                    log(nextWord);
                     break;
                 case 0X16:
-                    log("V");//16
+                    nextWord = nextWord + "V";
+                    log(nextWord);
                     break;
                 case 0X17:
-                    log("W");//17
+                    nextWord = nextWord + "W";
+                    log(nextWord);
                     break;
                 case 0X18:
-                    log("X");//18
+                    nextWord = nextWord + "X";
+                    log(nextWord);
                     break;
                 case 0X19:
-                    log("Y");//19
+                    nextWord = nextWord + "Y";
+                    log(nextWord);
                     break;
                 case 0X1A:
-                    log("Z");//1A
+                    nextWord = nextWord + "Z";
+                    log(nextWord);
                     break;
                 case 0X1B:
-                    log("?");//1B
+                    nextWord = nextWord + "?";
+                    log(nextWord);
                     break;
                 case 0X1C:
-                    log(".");//1C
+                    nextWord = nextWord + ".";
+                    log(nextWord);
                     break;
                 case 0X1D://1D...new line
-                    log("\n");
+                    nextWord = nextWord + "\n";
+                    log(nextWord);
                     break;
                 case 0X1E://1E...SPACE
                     nextWord = nextWord + " ";
@@ -289,68 +279,10 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
         {
             public void run()
             {
-                mText.append(msg);
-                mText.append("\n");
-                mScroller.smoothScrollTo(0, mText.getBottom());
+                mText.append("\r" + msg);
+                //mText.append("\n");
+                //mScroller.smoothScrollTo(0, mText.getBottom());
             }
         });
     }
-
-    public void onSensorChanged(SensorEvent event)
-    {
-        switch (event.sensor.getType())
-        {
-            case Sensor.TYPE_ACCELEROMETER:
-                for (int i = 0; i < 3; i++)
-                {
-                    valuesAccelerometer[i] = event.values[i];
-                }
-                break;
-            case Sensor.TYPE_MAGNETIC_FIELD:
-                for (int i = 0; i < 3; i++)
-                {
-                    valuesMagneticField[i] = event.values[i];
-                }
-                break;
-        }
-
-        boolean success = SensorManager.getRotationMatrix(matrixR, matrixI,
-                valuesAccelerometer, valuesMagneticField);
-        log(success + "  success");
-        if (success)
-        {
-            SensorManager.getOrientation(matrixR, matrixValues);
-            synchronized (this)
-            {
-                azimuth = Math.toDegrees(matrixValues[0]);
-                pitch = Math.toDegrees(matrixValues[1]);
-                roll = Math.toDegrees(matrixValues[2]);
-            }
-        }
-    }
-
-    public synchronized double getAzimuth()
-    {
-        return azimuth;
-    }
-
-    public synchronized double getPitch()
-    {
-        return pitch;
-    }
-
-    public synchronized double getRoll()
-    {
-        return roll;
-    }
-
-    public void speak(String stuffToSay)
-    {
-        mTts.setLanguage(Locale.US);
-        if (!mTts.isSpeaking())
-        {
-            mTts.speak(stuffToSay, TextToSpeech.QUEUE_FLUSH, null);
-        }
-    }
-
 }
