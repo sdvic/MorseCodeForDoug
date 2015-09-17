@@ -2,7 +2,9 @@ package ioio.examples.hello;
 
 /**
  * ***********************************************************************
- * Chord keyboard test ver 150915B
+ * Chord keyboard test ver 150917A
+ * Copyright 2015 Wintriss Technical Schools
+ * All rights reserved
  * ************************************************************************
  */
 
@@ -11,6 +13,9 @@ import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import java.util.Locale;
+
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -21,6 +26,7 @@ import ioio.lib.util.android.IOIOActivity;
 public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitListener
 {
     private TextView mText;
+    private TextToSpeech mTts;
     private ScrollView mScroller;
     private DigitalOutput led;//The IOIO board LED
     private DigitalInput thumb;
@@ -35,6 +41,10 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
     public static final int PINKIE_PIN = 23;
     private byte fingerCode;
     private String nextWord = "";
+    private char[] asciiCode =
+            {
+                    0, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '?', '.','\r', ' ', ' '
+            };
 
      /* ****************************************************************
      * Thumb  Index    Middle     Ring    Pinkie  Keyboard Layout
@@ -46,7 +56,7 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
      * 21 EXCLAMATION                       -----                   --
      * 2E PERIOD                            11100                   1C
      * 3F QUESTION MARK                     11011                   1B
-     * 20 SPACE                             11111                   1E
+     * 20 SPACE                             11110                   1E
      * 41 A                                 00001                   01
      * 42 B                                 00010                   02
      * 43 C                                 00011                   03
@@ -107,9 +117,9 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
         public void loop() throws ConnectionLostException, InterruptedException
         {
             led.write(false);
-            SystemClock.sleep(1000);
+            SystemClock.sleep(500);
             led.write(true);
-            SystemClock.sleep(1000);
+            SystemClock.sleep(500);
             fingerCode = 0;
             if (!thumb.read())
             {
@@ -131,134 +141,19 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
             {
                 fingerCode = (byte) (fingerCode | 0x1);
             }
-
-            switch (fingerCode)
+            if (fingerCode == 0x1f && nextWord.length() >= 1)//back delete
             {
-                case 1:
-                    nextWord = nextWord + "A";
-                    log(nextWord);
-                    break;
-                case 2:
-                    nextWord = nextWord + "B";
-                    log(nextWord);
-                    break;
-                case 3:
-                    nextWord = nextWord + "C";
-                    log(nextWord);
-                    break;
-                case 4:
-                    nextWord = nextWord + "D";
-                    log(nextWord);
-                    break;
-                case 5:
-                    nextWord = nextWord + "E";
-                    log(nextWord);
-                    break;
-                case 6:
-                    nextWord = nextWord + "F";
-                    log(nextWord);
-                    break;
-                case 7:
-                    nextWord = nextWord + "G";
-                    log(nextWord);
-                    break;
-                case 8:
-                    nextWord = nextWord + "H";
-                    log(nextWord);
-                    break;
-                case 9:
-                    nextWord = nextWord + "I";
-                    log(nextWord);
-                    break;
-                case 0X0A:
-                    nextWord = nextWord + "J";
-                    log(nextWord);
-                    break;
-                case 0X0B:
-                    nextWord = nextWord + "K";
-                    log(nextWord);
-                    break;
-                case 0X0C:
-                    nextWord = nextWord + "L";
-                    log(nextWord);
-                    break;
-                case 0X0D:
-                    nextWord = nextWord + "M";
-                    log(nextWord);
-                    break;
-                case 0X0E:
-                    nextWord = nextWord + "N";
-                    log(nextWord);
-                    break;
-                case 0X0F:
-                    nextWord = nextWord + "O";
-                    log(nextWord);
-                    break;
-                case 0X10:
-                    nextWord = nextWord + "P";
-                    log(nextWord);
-                    break;
-                case 0X11:
-                    nextWord = nextWord + "Q";
-                    log(nextWord);
-                    break;
-                case 0X12:
-                    nextWord = nextWord + "R";
-                    log(nextWord);
-                    break;
-                case 0X13:
-                    nextWord = nextWord + "S";
-                    log(nextWord);
-                    break;
-                case 0X14:
-                    nextWord = nextWord + "T";
-                    log(nextWord);
-                    break;
-                case 0X15:
-                    nextWord = nextWord + "U";
-                    log(nextWord);
-                    break;
-                case 0X16:
-                    nextWord = nextWord + "V";
-                    log(nextWord);
-                    break;
-                case 0X17:
-                    nextWord = nextWord + "W";
-                    log(nextWord);
-                    break;
-                case 0X18:
-                    nextWord = nextWord + "X";
-                    log(nextWord);
-                    break;
-                case 0X19:
-                    nextWord = nextWord + "Y";
-                    log(nextWord);
-                    break;
-                case 0X1A:
-                    nextWord = nextWord + "Z";
-                    log(nextWord);
-                    break;
-                case 0X1B:
-                    nextWord = nextWord + "?";
-                    log(nextWord);
-                    break;
-                case 0X1C:
-                    nextWord = nextWord + ".";
-                    log(nextWord);
-                    break;
-                case 0X1D://1D...new line
-                    nextWord = nextWord + "\n";
-                    log(nextWord);
-                    break;
-                case 0X1E://1E...SPACE
-                    nextWord = nextWord + " ";
-                    log(nextWord);
-                    break;
-                case 0X1F://1F...back space
-                    nextWord  = nextWord.substring(0, nextWord.length() - 1);
-                    log(nextWord);
-                    break;
+                nextWord = nextWord.substring(0, nextWord.length() - 1);
+                log(nextWord);
+                fingerCode = 0;
+                return;
             }
+            if (fingerCode != 0)
+            {
+                nextWord = nextWord + asciiCode[fingerCode];
+                log(nextWord);
+            }
+
         }
     }
 
@@ -278,5 +173,14 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
                 mText.append("\r" + msg);
             }
         });
+    }
+
+    public void speak(String stuffToSay)
+    {
+        mTts.setLanguage(Locale.US);
+        if (!mTts.isSpeaking())
+        {
+            mTts.speak(stuffToSay, TextToSpeech.QUEUE_FLUSH, null);
+        }
     }
 }
