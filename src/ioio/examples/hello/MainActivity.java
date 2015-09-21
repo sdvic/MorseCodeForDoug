@@ -2,7 +2,7 @@ package ioio.examples.hello;
 
 /**
  * ***********************************************************************
- * Chord keyboard test ver 150920A
+ * Chord keyboard test ver 150920B
  * Copyright 2015 Wintriss Technical Schools
  * All rights reserved
  * ************************************************************************
