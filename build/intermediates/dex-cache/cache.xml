@@ -8,5 +8,12 @@
         sha1="1de6f386c30d0ed32d3bbaff740b9c64540fa151">
         <dex dex="/Users/VicMini/git/VicsWagon2015/build/intermediates/pre-dexed/debug/ioiolibandroid-fed731c221f8140250b36d08ef880211b3e97b8c.jar" />
     </item>
+    <item
+        jar="/Users/VicMini/git/ChordKeyboard/ioiolibandroid.jar"
+        jumboMode="false"
+        revision="21.0.0"
+        sha1="1de6f386c30d0ed32d3bbaff740b9c64540fa151">
+        <dex dex="/Users/VicMini/git/ChordKeyboard/build/intermediates/pre-dexed/debug/ioiolibandroid-c844dff8ca2025131ad9a5f6652144c099004244.jar" />
+    </item>
 
 </items>
