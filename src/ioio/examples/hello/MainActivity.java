@@ -2,46 +2,46 @@ package ioio.examples.hello;
 
 /**
  * ***********************************************************************
- * Morse code test ver 150927A
+ * Morse code test ver 151008A
  * Copyright 2015 Wintriss Technical Schools
  * All rights reserved
- *
- A	.-
- B	-...
- C	-.-.
- D	-..
- E	.
- F	..-.
- G	--.
- H	....
- I	..
- J	.---
- K	-.-
- L	.-..
- M	--
- N	-.
- O	---
- P	.--.
- Q	--.-
- R	.-.
- S	...
- T	-
- U	..-
- V	...-
- W	.--
- X	-..-
- Y	-.--
- Z	--..
- 0	-----
- 1	.----
- 2	..---
- 3	...--
- 4	....-
- 5	.....
- 6	-....
- 7	--...
- 8	---..
- 9	----.
+ * <p/>
+ * A	.-
+ * B	-...
+ * C	-.-.
+ * D	-..
+ * E	.
+ * F	..-.
+ * G	--.
+ * H	....
+ * I	..
+ * J	.---
+ * K	-.-
+ * L	.-..
+ * M	--
+ * N	-.
+ * O	---
+ * P	.--.
+ * Q	--.-
+ * R	.-.
+ * S	...
+ * T	-
+ * U	..-
+ * V	...-
+ * W	.--
+ * X	-..-
+ * Y	-.--
+ * Z	--..
+ * 0	-----
+ * 1	.----
+ * 2	..---
+ * 3	...--
+ * 4	....-
+ * 5	.....
+ * 6	-....
+ * 7	--...
+ * 8	---..
+ * 9	----.
  * ************************************************************************
  */
 
@@ -74,14 +74,16 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
     private DigitalInput pinkie;
     private AnalogInput analogThumb;
     private AnalogInput analogIndexFinger;
+    private DigitalOutput beeper;
     public static final int THUMB_PIN = 19;//IOIO board pin numbers
     public static final int INDEX_FINGER_PIN = 20;
+    public static final int INDEX_ANALOG_FINGER_PIN = 41;
     public static final int MIDDLE_FINGER_PIN = 21;
     public static final int RING_FINGER_PIN = 22;
     public static final int PINKIE_PIN = 23;
-    private float thumbVoltage;
-    private float indexFingerVoltage;
-    private String nextWord = "";
+    public static final int BEEPER_PIN = 3;
+    private long startTime;
+    private boolean ledCycle = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -94,7 +96,6 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
     @Override
     public void onInit(int status)
     {
-
     }
 
     class Looper extends BaseIOIOLooper
@@ -103,27 +104,37 @@ public class MainActivity extends IOIOActivity implements TextToSpeech.OnInitLis
         protected void setup() throws ConnectionLostException
         {
             led = ioio_.openDigitalOutput(0, true);
-            analogIndexFinger = ioio_.openAnalogInput(INDEX_FINGER_PIN);
-            thumb = ioio_.openDigitalInput(THUMB_PIN, DigitalInput.Spec.Mode.PULL_UP);
-            indexFinger = ioio_.openDigitalInput(INDEX_FINGER_PIN, DigitalInput.Spec.Mode.PULL_UP);
-            middleFinger = ioio_.openDigitalInput(MIDDLE_FINGER_PIN, DigitalInput.Spec.Mode.PULL_UP);
-            ringFinger = ioio_.openDigitalInput(RING_FINGER_PIN, DigitalInput.Spec.Mode.PULL_UP);
-            pinkie = ioio_.openDigitalInput(PINKIE_PIN, DigitalInput.Spec.Mode.PULL_UP);
+            analogIndexFinger = ioio_.openAnalogInput(INDEX_ANALOG_FINGER_PIN);
+            beeper = ioio_.openDigitalOutput(BEEPER_PIN);
         }
 
         @Override
         public void loop() throws ConnectionLostException, InterruptedException
         {
-            led.write(false);
-            SystemClock.sleep(500);
-            led.write(true);
-            SystemClock.sleep(500);
-            indexFingerVoltage = analogIndexFinger.getVoltage();
-            //if (thumbVoltage < 1.6)
+           if (ledCycle)
+           {
+               startTime = SystemClock.currentThreadTimeMillis();
+               ledCycle = false;
+           }
+            if ((SystemClock.currentThreadTimeMillis() - startTime) < 1000)
             {
-                nextWord += ("v = " + indexFingerVoltage);
+                led.write(false);
             }
-            log(nextWord);
+            else
+            {
+                led.write(true);
+            }
+            if((SystemClock.currentThreadTimeMillis() - startTime) > 2000)
+            {
+               ledCycle = true;
+            }
+            if (analogIndexFinger.getVoltage() > 1.9)
+            {
+                beeper.write(true);
+            } else
+            {
+                beeper.write(false);
+            }
         }
     }
 

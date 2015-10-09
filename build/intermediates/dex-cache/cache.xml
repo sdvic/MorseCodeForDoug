@@ -2,18 +2,11 @@
 <items version="2" >
 
     <item
-        jar="/Users/VicMini/git/VicsWagon2015/ioiolibandroid.jar"
+        jar="/Users/VicMini/git/MorseCodeForDoug/ioiolibandroid.jar"
         jumboMode="false"
         revision="21.0.0"
         sha1="1de6f386c30d0ed32d3bbaff740b9c64540fa151">
-        <dex dex="/Users/VicMini/git/VicsWagon2015/build/intermediates/pre-dexed/debug/ioiolibandroid-fed731c221f8140250b36d08ef880211b3e97b8c.jar" />
-    </item>
-    <item
-        jar="/Users/VicMini/git/ChordKeyboard/ioiolibandroid.jar"
-        jumboMode="false"
-        revision="21.0.0"
-        sha1="1de6f386c30d0ed32d3bbaff740b9c64540fa151">
-        <dex dex="/Users/VicMini/git/ChordKeyboard/build/intermediates/pre-dexed/debug/ioiolibandroid-c844dff8ca2025131ad9a5f6652144c099004244.jar" />
+        <dex dex="/Users/VicMini/git/MorseCodeForDoug/build/intermediates/pre-dexed/debug/ioiolibandroid-cc9ddee85b9d8246e01790ef3a8b4730d1ad3fe9.jar" />
     </item>
 
 </items>
