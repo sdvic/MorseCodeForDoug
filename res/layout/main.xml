@@ -10,9 +10,8 @@
     android:text="@string/hello"
     android:id="@+id/title"
     android:textSize="4dp"/>
-  <ToggleButton android:text="ToggleButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button"></ToggleButton>
 
-  <ScrollView android:id="@+id/scroller"
+    <ScrollView android:id="@+id/scroller"
                 android:layout_width="fill_parent" 
                 android:layout_height="fill_parent"
                 android:background="@drawable/box">
